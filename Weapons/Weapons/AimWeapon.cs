@@ -1,0 +1,59 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[RequireComponent(typeof(AimWeaponEvent))]
+[DisallowMultipleComponent]
+public class AimWeapon : MonoBehaviour
+{
+    [Header("武器旋转点")]
+    [SerializeField] private Transform weaponRotaionPointTransofrm;
+    private AimWeaponEvent aimWeaponEvent;
+
+    private void Awake()
+    {
+        aimWeaponEvent = GetComponent<AimWeaponEvent>();
+    }
+
+    private void OnEnable()
+    {
+        aimWeaponEvent.OnWeaponAim += AimWeaponEvent_OnWeaponAim;
+    }
+
+    private void OnDisable()
+    {
+        aimWeaponEvent.OnWeaponAim -= AimWeaponEvent_OnWeaponAim;
+    }
+
+    public void AimWeaponEvent_OnWeaponAim(AimWeaponEvent aimWeaponEvent, AimWeaponEventArgs aimWeaponEventArgs)
+    {
+        Aim(aimWeaponEventArgs.aimDirection, aimWeaponEventArgs.aimAngle);
+    }
+
+    private void Aim(AimDirection aimDirection, float aimAngle)
+    {
+        weaponRotaionPointTransofrm.eulerAngles = new Vector3(0f, 0f, aimAngle);
+        switch (aimDirection)
+        {
+            case AimDirection.Left:
+            case AimDirection.UpLeft:
+                weaponRotaionPointTransofrm.localScale = new Vector3(1f, -1f, 0f);
+                break;
+            case AimDirection.Up:
+            case AimDirection.UpRight:
+            case AimDirection.Down:
+            case AimDirection.Right:
+                weaponRotaionPointTransofrm.localScale = new Vector3(1f, 1f, 0f);
+                break;
+        }
+    }
+
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        HelperUtilities.ValidateCheckNullValue(this, nameof(weaponRotaionPointTransofrm), weaponRotaionPointTransofrm);
+    }
+#endif
+}
